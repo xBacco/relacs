@@ -1191,7 +1191,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     });
   });
 
-  /* Form submit â†’ POST a Formspree con fallback mailto */
+  /* Form submit → POST a Formspree con fallback mailto */
   function buildMailtoFallback(form,tipo){
     const fd=new FormData(form);
     const lines=[];
@@ -1214,7 +1214,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
       const submitBtn=form.querySelector('.form-submit');
       const originalLabel=submitBtn.textContent;
       submitBtn.disabled=true;
-      submitBtn.textContent='Invio in corsoâ€¦';
+      submitBtn.textContent='Invio in corso…';
       setStatus(form,'','');
 
       const action=form.getAttribute('action')||'';
@@ -1230,12 +1230,12 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
         if(!res.ok) throw new Error('HTTP '+res.status);
         form.reset();
         setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
-        submitBtn.textContent='Inviato âœ“';
+        submitBtn.textContent='Inviato ✓';
         setTimeout(()=>{ submitBtn.textContent=originalLabel; submitBtn.disabled=false; },3500);
       }catch(err){
         submitBtn.disabled=false;
         submitBtn.textContent=originalLabel;
-        setStatus(form,'Invio non riuscito. Apriamo il tuo client mail come alternativaâ€¦','err');
+        setStatus(form,'Invio non riuscito. Apriamo il tuo client mail come alternativa…','err');
         setTimeout(()=>{ window.location.href=buildMailtoFallback(form,tipo); },600);
       }
     });
