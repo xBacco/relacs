@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0C0C0C"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A8956E"/>
+      <stop offset="1" stop-color="#C9B888"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .04 0"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" filter="url(#grain)" opacity=".5"/>
+
+  <!-- Watermark $ giant on right -->
+  <text x="1180" y="700"
+        font-family="'Playfair Display', Georgia, serif"
+        font-size="780" font-weight="900" font-style="italic"
+        fill="none" stroke="#A8956E" stroke-width="1" stroke-opacity=".09"
+        text-anchor="end">$</text>
+
+  <!-- Top eyebrow -->
+  <line x1="80" y1="120" x2="120" y2="120" stroke="#A8956E" stroke-width="1.5"/>
+  <text x="135" y="125"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="18" font-weight="500" letter-spacing="6" fill="#A8956E">TIME IS MONEY</text>
+
+  <!-- Main wordmark -->
+  <text x="80" y="320"
+        font-family="'Bebas Neue', Impact, 'Arial Narrow', sans-serif"
+        font-size="220" font-weight="900" letter-spacing="14" fill="#EAEAEA">RELAC</text>
+  <text x="700" y="320"
+        font-family="'Playfair Display', Georgia, serif"
+        font-size="220" font-weight="900" font-style="italic" fill="url(#gold)">$</text>
+
+  <!-- Tagline -->
+  <text x="80" y="395"
+        font-family="'Cormorant Garamond', Georgia, serif"
+        font-size="42" font-weight="300" font-style="italic" fill="#A3A3A3" letter-spacing="2">
+    43 grammi di puro status.
+  </text>
+
+  <!-- Bottom row: price + spec -->
+  <line x1="80" y1="490" x2="1120" y2="490" stroke="#A8956E" stroke-width="1" stroke-opacity=".25"/>
+
+  <text x="80" y="555"
+        font-family="'Playfair Display', Georgia, serif"
+        font-size="86" font-weight="900" fill="#EAEAEA">€69</text>
+  <text x="80" y="588"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="14" font-weight="500" letter-spacing="4" fill="#A8956E">PREZZO UNICO</text>
+
+  <text x="500" y="555"
+        font-family="'Playfair Display', Georgia, serif"
+        font-size="60" font-weight="900" fill="#EAEAEA">4</text>
+  <text x="500" y="588"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="14" font-weight="500" letter-spacing="4" fill="#A8956E">STILI</text>
+
+  <text x="700" y="555"
+        font-family="'Playfair Display', Georgia, serif"
+        font-size="60" font-weight="900" fill="#EAEAEA">43<tspan font-size="28" fill="#A8956E" dy="-22">g</tspan></text>
+  <text x="700" y="588"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="14" font-weight="500" letter-spacing="4" fill="#A8956E">POLICARBONATO</text>
+
+  <!-- Tagline bottom right -->
+  <text x="1120" y="588"
+        font-family="'Cormorant Garamond', Georgia, serif"
+        font-size="22" font-style="italic" fill="#A3A3A3" text-anchor="end">Spend it Wisely.</text>
+</svg>
