@@ -691,7 +691,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     <button class="modal-close" onclick="closeModal('modal-privati')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-privati-title">Contatto Privati</h2>
     <form id="form-privati" class="rl-form" data-tipo="privati"
-          action="https://formsubmit.co/ajax/info@relacs.it" method="POST">
+          action="https://formsubmit.co/info@relacs.it" method="POST">
       <input type="hidden" name="_subject" value="Richiesta Privati — RELAC$">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
@@ -726,7 +726,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     <button class="modal-close" onclick="closeModal('modal-aziende')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-aziende-title">Contatto Aziende</h2>
     <form id="form-aziende" class="rl-form" data-tipo="aziende"
-          action="https://formsubmit.co/ajax/info@relacs.it" method="POST">
+          action="https://formsubmit.co/info@relacs.it" method="POST">
       <input type="hidden" name="_subject" value="Richiesta Aziende — RELAC$">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
@@ -1225,13 +1225,11 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
       const action=form.getAttribute('action')||'';
 
       try{
-        const res=await fetch(action,{
+        await fetch(action,{
           method:'POST',
-          headers:{'Accept':'application/json'},
+          mode:'no-cors',
           body:new FormData(form)
         });
-        const data=await res.json();
-        if(!res.ok || data.success==='false') throw new Error('invio fallito');
         form.reset();
         setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
         submitBtn.textContent='Inviato ✓';
@@ -1239,8 +1237,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
       }catch(err){
         submitBtn.disabled=false;
         submitBtn.textContent=originalLabel;
-        setStatus(form,'Invio non riuscito. Apriamo il tuo client mail come alternativa…','err');
-        setTimeout(()=>{ window.location.href=buildMailtoFallback(form,tipo); },600);
+        setStatus(form,'Errore di rete. Scrivici direttamente a info@relacs.it','err');
       }
     });
   });
