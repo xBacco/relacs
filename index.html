@@ -685,19 +685,15 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
 <div id="cur"></div>
 <div id="cur-r"></div>
 
-<!-- Iframe nascosto per invio form senza redirect -->
-<iframe name="form-target" id="form-target" style="display:none" aria-hidden="true"></iframe>
-
 <!-- MODALI -->
 <div class="modal-backdrop" id="modal-privati" role="dialog" aria-modal="true" aria-labelledby="modal-privati-title">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-privati')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-privati-title">Contatto Privati</h2>
-    <form id="form-privati" class="rl-form" data-tipo="privati"
-          action="https://formsubmit.co/info@relacs.it" method="POST" target="form-target">
-      <input type="hidden" name="_subject" value="Richiesta Privati — RELAC$">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
+    <form id="form-privati" class="rl-form" data-tipo="privati">
+      <input type="hidden" name="access_key" value="2e9533d4-475a-4a95-85cc-a63ddceafb35">
+      <input type="hidden" name="subject" value="Richiesta Privati — RELAC$">
+      <input type="hidden" name="from_name" value="RELAC$ Sito">
       <div class="form-group">
         <label class="form-label" for="p-nome">Nome</label>
         <input class="form-input" id="p-nome" name="nome" type="text" required placeholder="Il tuo nome" autocomplete="given-name">
@@ -728,11 +724,10 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-aziende')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-aziende-title">Contatto Aziende</h2>
-    <form id="form-aziende" class="rl-form" data-tipo="aziende"
-          action="https://formsubmit.co/info@relacs.it" method="POST" target="form-target">
-      <input type="hidden" name="_subject" value="Richiesta Aziende — RELAC$">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
+    <form id="form-aziende" class="rl-form" data-tipo="aziende">
+      <input type="hidden" name="access_key" value="2e9533d4-475a-4a95-85cc-a63ddceafb35">
+      <input type="hidden" name="subject" value="Richiesta Aziende — RELAC$">
+      <input type="hidden" name="from_name" value="RELAC$ Sito">
       <div class="form-group">
         <label class="form-label" for="a-azienda">Nome Azienda</label>
         <input class="form-input" id="a-azienda" name="azienda" type="text" required placeholder="Ragione sociale" autocomplete="organization">
@@ -1199,7 +1194,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     });
   });
 
-  /* Form submit → POST a FormSubmit.co tramite iframe nascosto (no CORS) */
+  /* Form submit → Web3Forms API */
   function setStatus(form,msg,kind){
     const s=form.querySelector('.form-status');
     if(!s) return;
@@ -1208,32 +1203,35 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     if(kind) s.classList.add(kind);
   }
 
-  var activeForm=null;
-  var originalLabels={};
-
-  document.getElementById('form-target').addEventListener('load',function(){
-    if(!activeForm) return;
-    var form=activeForm;
-    activeForm=null;
-    var submitBtn=form.querySelector('.form-submit');
-    form.reset();
-    setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
-    submitBtn.textContent='Inviato ✓';
-    setTimeout(function(){
-      submitBtn.textContent=originalLabels[form.id]||'Invia Richiesta';
-      submitBtn.disabled=false;
-    },3500);
-  });
-
   document.querySelectorAll('form.rl-form').forEach(function(form){
-    originalLabels[form.id]=form.querySelector('.form-submit').textContent;
-    form.addEventListener('submit',function(e){
-      if(!form.reportValidity()){e.preventDefault();return;}
+    var originalLabel=form.querySelector('.form-submit').textContent;
+    form.addEventListener('submit',async function(e){
+      e.preventDefault();
+      if(!form.reportValidity()) return;
       var submitBtn=form.querySelector('.form-submit');
       submitBtn.disabled=true;
       submitBtn.textContent='Invio in corso…';
       setStatus(form,'','');
-      activeForm=form;
+      try{
+        var res=await fetch('https://api.web3forms.com/submit',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body:JSON.stringify(Object.fromEntries(new FormData(form)))
+        });
+        var data=await res.json();
+        if(data.success){
+          form.reset();
+          setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
+          submitBtn.textContent='Inviato ✓';
+          setTimeout(function(){submitBtn.textContent=originalLabel;submitBtn.disabled=false;},3500);
+        } else {
+          throw new Error(data.message);
+        }
+      }catch(err){
+        submitBtn.disabled=false;
+        submitBtn.textContent=originalLabel;
+        setStatus(form,'Errore nell\'invio. Scrivici a info@relacs.it','err');
+      }
     });
   });
 })();
