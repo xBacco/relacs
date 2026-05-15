@@ -685,13 +685,16 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
 <div id="cur"></div>
 <div id="cur-r"></div>
 
+<!-- Iframe nascosto per invio form senza redirect -->
+<iframe name="form-target" id="form-target" style="display:none" aria-hidden="true"></iframe>
+
 <!-- MODALI -->
 <div class="modal-backdrop" id="modal-privati" role="dialog" aria-modal="true" aria-labelledby="modal-privati-title">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-privati')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-privati-title">Contatto Privati</h2>
     <form id="form-privati" class="rl-form" data-tipo="privati"
-          action="https://formsubmit.co/info@relacs.it" method="POST">
+          action="https://formsubmit.co/info@relacs.it" method="POST" target="form-target">
       <input type="hidden" name="_subject" value="Richiesta Privati — RELAC$">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
@@ -726,7 +729,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     <button class="modal-close" onclick="closeModal('modal-aziende')" aria-label="Chiudi">✕</button>
     <h2 class="modal-title" id="modal-aziende-title">Contatto Aziende</h2>
     <form id="form-aziende" class="rl-form" data-tipo="aziende"
-          action="https://formsubmit.co/info@relacs.it" method="POST">
+          action="https://formsubmit.co/info@relacs.it" method="POST" target="form-target">
       <input type="hidden" name="_subject" value="Richiesta Aziende — RELAC$">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
@@ -1196,14 +1199,7 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     });
   });
 
-  /* Form submit → POST a Formspree con fallback mailto */
-  function buildMailtoFallback(form,tipo){
-    const fd=new FormData(form);
-    const lines=[];
-    fd.forEach((v,k)=>{ if(k!=='consenso_privacy'&&!k.startsWith('_')) lines.push(`${k}: ${v}`); });
-    const subject=tipo==='privati'?'Richiesta Privati':'Richiesta Aziende';
-    return `mailto:info@relacs.it?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
-  }
+  /* Form submit → POST a FormSubmit.co tramite iframe nascosto (no CORS) */
   function setStatus(form,msg,kind){
     const s=form.querySelector('.form-status');
     if(!s) return;
@@ -1211,34 +1207,33 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
     s.classList.remove('ok','err');
     if(kind) s.classList.add(kind);
   }
-  document.querySelectorAll('form.rl-form').forEach(form=>{
-    form.addEventListener('submit', async e=>{
-      e.preventDefault();
-      if(!form.reportValidity()) return;
-      const tipo=form.dataset.tipo||'privati';
-      const submitBtn=form.querySelector('.form-submit');
-      const originalLabel=submitBtn.textContent;
+
+  var activeForm=null;
+  var originalLabels={};
+
+  document.getElementById('form-target').addEventListener('load',function(){
+    if(!activeForm) return;
+    var form=activeForm;
+    activeForm=null;
+    var submitBtn=form.querySelector('.form-submit');
+    form.reset();
+    setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
+    submitBtn.textContent='Inviato ✓';
+    setTimeout(function(){
+      submitBtn.textContent=originalLabels[form.id]||'Invia Richiesta';
+      submitBtn.disabled=false;
+    },3500);
+  });
+
+  document.querySelectorAll('form.rl-form').forEach(function(form){
+    originalLabels[form.id]=form.querySelector('.form-submit').textContent;
+    form.addEventListener('submit',function(e){
+      if(!form.reportValidity()){e.preventDefault();return;}
+      var submitBtn=form.querySelector('.form-submit');
       submitBtn.disabled=true;
       submitBtn.textContent='Invio in corso…';
       setStatus(form,'','');
-
-      const action=form.getAttribute('action')||'';
-
-      try{
-        await fetch(action,{
-          method:'POST',
-          mode:'no-cors',
-          body:new FormData(form)
-        });
-        form.reset();
-        setStatus(form,'Richiesta inviata. Ti risponderemo entro 24 ore.','ok');
-        submitBtn.textContent='Inviato ✓';
-        setTimeout(()=>{ submitBtn.textContent=originalLabel; submitBtn.disabled=false; },3500);
-      }catch(err){
-        submitBtn.disabled=false;
-        submitBtn.textContent=originalLabel;
-        setStatus(form,'Errore di rete. Scrivici direttamente a info@relacs.it','err');
-      }
+      activeForm=form;
     });
   });
 })();
