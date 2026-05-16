@@ -1121,15 +1121,28 @@ footer{background:#0A0806;border-top:1px solid var(--bd);
   }
 
   /* Modali */
+  var _scrollY=0;
+  function _lockScroll(){
+    _scrollY=window.scrollY;
+    document.body.style.position='fixed';
+    document.body.style.top='-'+_scrollY+'px';
+    document.body.style.width='100%';
+  }
+  function _unlockScroll(){
+    document.body.style.position='';
+    document.body.style.top='';
+    document.body.style.width='';
+    window.scrollTo(0,_scrollY);
+  }
   window.openModal=function(id){
     const m=document.getElementById(id);
     m.classList.add('open');
-    document.body.style.overflow='hidden';
+    _lockScroll();
     m.querySelector('button').focus();
   };
   window.closeModal=function(id){
     document.getElementById(id).classList.remove('open');
-    document.body.style.overflow='';
+    _unlockScroll();
   };
   /* Chiudi con ESC o click fuori */
   document.querySelectorAll('.modal-backdrop').forEach(bd=>{
